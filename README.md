@@ -4,6 +4,8 @@
 
 **🤖 Built with Claude Code in ~2 hours for approximately $6**
 
+![ai-ad-generator](https://github.com/user-attachments/assets/eb14eb9c-6035-4302-8684-45fa1543e24e)
+
 ## Project Overview
 
 This is a full-stack AI-powered advertising copy generation service built as a monorepo. The system leverages Claude AI to generate high-quality advertisement copy based on user input and preferences.
