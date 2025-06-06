@@ -1,0 +1,154 @@
+openapi: 3.0.0
+info:
+  title: AI駆動型広告文生成API
+  description: ユーザー入力に基づいて、AIが効果的な広告文を生成するサービス
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: 開発環境
+  - url: https://api.your-domain.com
+    description: 本番環境
+
+tags:
+  - name: ads
+    description: 広告文生成関連API
+
+paths:
+  /generate-ad-copy:
+    post:
+      summary: 広告文を生成する
+      description: |
+        商品/サービスの名称、ターゲット層、アピールポイントなどの情報に基づいて、
+        AIが複数の広告文候補とそれぞれの評価を生成します。
+      tags:
+        - ads
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdCopyGenerationRequest'
+      responses:
+        '200':
+          description: 広告文の生成に成功しました。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdCopyGenerationResponse'
+        '400':
+          description: リクエストのパラメータが不正です。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: サーバー内部エラーが発生しました。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    AdCopyGenerationRequest:
+      type: object
+      required:
+        - productName
+        - targetAudience
+        - appealPoints
+      properties:
+        productName:
+          type: string
+          description: 広告を作成する商品またはサービスの名称
+          example: "最新型スマートウォッチ 'Watch X'"
+        targetAudience:
+          type: string
+          description: 広告のターゲットとなる顧客層
+          example: "健康志向の20代〜40代のビジネスパーソン"
+        appealPoints:
+          type: array
+          items:
+            type: string
+          description: 商品/サービスの主なアピールポイント（複数可）
+          example:
+            - "バッテリー持続時間5日間"
+            - "心拍数・睡眠トラッキング機能"
+            - "スタイリッシュなデザイン"
+        tone:
+          type: string
+          description: 広告文のトーン例
+          nullable: true
+          enum: [formal, casual, humorous, professional, friendly]
+          default: "professional"
+        numCopies:
+          type: integer
+          format: int32
+          description: 生成する広告文の候補数
+          minimum: 1
+          maximum: 5
+          default: 3
+
+    AdCopyGenerationResponse:
+      type: object
+      required:
+        - generatedCopies
+      properties:
+        generatedCopies:
+          type: array
+          items:
+            $ref: '#/components/schemas/GeneratedAdCopy'
+          description: 生成された広告文の候補リスト
+
+    GeneratedAdCopy:
+      type: object
+      required:
+        - copyText
+      properties:
+        copyText:
+          type: string
+          description: 生成された広告文の本文
+          example: "【Watch X】5日間充電不要！健康管理もスタイリッシュに。あなたのビジネスライフをサポート。"
+        headline:
+          type: string
+          description: 広告のヘッドライン（見出し）
+          example: "5日間充電不要！ビジネスパーソンのためのスマートウォッチ"
+          nullable: true
+        callToAction:
+          type: string
+          description: 行動喚起のメッセージ
+          example: "今すぐ購入して、より健康的な日々を始めよう！"
+          nullable: true
+        evaluation:
+          type: object
+          description: 広告文の評価情報 (オプション)
+          properties:
+            relevanceScore:
+              type: number
+              format: float
+              description: 入力情報との関連性スコア (0.0 - 1.0)
+              example: 0.95
+            creativityScore:
+              type: number
+              format: float
+              description: 広告文の創造性スコア (0.0 - 1.0)
+              example: 0.8
+            targetAudienceAppeal:
+              type: string
+              description: ターゲット層への響きやすさコメント
+              example: "健康志向のビジネスパーソンに響くキーワードが散りばめられています。"
+          nullable: true
+
+    ErrorResponse:
+      type: object
+      required:
+        - message
+        - code
+      properties:
+        message:
+          type: string
+          description: エラーメッセージ
+          example: "Invalid input parameters."
+        code:
+          type: string
+          description: エラーコード
+          example: "BAD_REQUEST"
